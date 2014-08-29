@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6206.8" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7026.1"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
+                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="Si3-fD-3RL">
+                                <rect key="frame" x="150" y="93" width="300" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="guz-Qc-9wo"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="Top"/>
+                                    <segment title="Bottom"/>
+                                    <segment title="Left"/>
+                                    <segment title="Right"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changePresentationEdge:" destination="vXZ-lx-hvc" eventType="valueChanged" id="9qN-n6-ZDf"/>
+                                </connections>
+                            </segmentedControl>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="bPj-ao-ojJ">
+                                <rect key="frame" x="150" y="199" width="300" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="jEf-Qk-TZk"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="None"/>
+                                    <segment title="Top"/>
+                                    <segment title="Bottom"/>
+                                    <segment title="Left"/>
+                                    <segment title="Right"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changeAlignmentEdge:" destination="vXZ-lx-hvc" eventType="valueChanged" id="2qe-Wj-2b2"/>
+                                </connections>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Presentation Edge" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jz2-zD-gZT">
+                                <rect key="frame" x="230" y="64" width="141" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Alignment Edge" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="La3-tK-sgo">
+                                <rect key="frame" x="239" y="170" width="122" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nmq-jy-0Eb">
+                                <rect key="frame" x="223" y="526" width="155" height="30"/>
+                                <state key="normal" title="Present RSTToastView">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="presentToastView:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="A39-BK-tbW"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="bPj-ao-ojJ" firstAttribute="top" secondItem="La3-tK-sgo" secondAttribute="bottom" constant="8" id="080-iD-PiX"/>
+                            <constraint firstAttribute="centerX" secondItem="La3-tK-sgo" secondAttribute="centerX" id="2T7-i5-KLe"/>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="Nmq-jy-0Eb" secondAttribute="bottom" constant="44" id="4c6-bf-ODw"/>
+                            <constraint firstItem="La3-tK-sgo" firstAttribute="centerX" secondItem="bPj-ao-ojJ" secondAttribute="centerX" id="T3j-3K-rgc"/>
+                            <constraint firstAttribute="centerX" secondItem="Jz2-zD-gZT" secondAttribute="centerX" id="Xv1-vW-fNb"/>
+                            <constraint firstItem="Si3-fD-3RL" firstAttribute="top" secondItem="Jz2-zD-gZT" secondAttribute="bottom" constant="8" id="ZqU-4E-h3Z"/>
+                            <constraint firstItem="La3-tK-sgo" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="150" id="a3a-oi-XTv"/>
+                            <constraint firstAttribute="centerX" secondItem="Nmq-jy-0Eb" secondAttribute="centerX" constant="-0.5" id="cxK-np-sON"/>
+                            <constraint firstItem="Si3-fD-3RL" firstAttribute="centerX" secondItem="Jz2-zD-gZT" secondAttribute="centerX" constant="-0.5" id="hM0-4x-P37"/>
+                            <constraint firstItem="Jz2-zD-gZT" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="44" id="lsA-m7-52o"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
