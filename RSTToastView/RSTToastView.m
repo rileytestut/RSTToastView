@@ -8,6 +8,21 @@
 
 #import "RSTToastView.h"
 
+@interface RSTPresentationRootViewController : UIViewController
+
+@end
+
+@implementation RSTPresentationRootViewController
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    // Listen to UIApplicationWillChangeStatusBarOrientationNotification to know when the app's top view controller rotates
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+@end
+
+
 @interface RSTPresentationWindow : UIWindow
 
 @end
@@ -19,6 +34,11 @@
     self = [super initWithFrame:frame];
     if (self)
     {
+        RSTPresentationRootViewController *rootViewController = [RSTPresentationRootViewController new];
+        rootViewController.view.frame = frame;
+        rootViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        self.rootViewController = rootViewController;
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateToInterfaceOrientation:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     }
     
@@ -88,7 +108,7 @@
 {
     UIView *view = [super hitTest:point withEvent:event];
     
-    if (view == self)
+    if (view == self || view == self.rootViewController.view)
     {
         return nil;
     }
@@ -98,6 +118,7 @@
 
 
 @end
+
 
 const CGFloat RSTToastViewCornerRadiusAutomaticRoundedDimension = -1816.1816;
 const CGFloat RSTToastViewAutomaticWidth = 0;
@@ -114,7 +135,8 @@ static RSTToastView *_globalToastView;
 
 #define DEGREES_TO_RADIANS(angle) ((angle) / 180.0 * M_PI)
 
-@interface RSTToastView () {
+@interface RSTToastView ()
+{
     BOOL _currentlyHiding;
 }
 
@@ -138,7 +160,8 @@ static RSTToastView *_globalToastView;
 
 + (void)load
 {
-    [[RSTToastView appearance] setTintColor:[UIColor blackColor]];
+    UIColor *gba4iosPurpleColor = [UIColor colorWithRed:120.0/255.0 green:32.0/255.0 blue:157.0/255.0 alpha:1.0];
+    [[RSTToastView appearance] setTintColor:gba4iosPurpleColor];
 }
 
 #pragma mark - Life Cycle
