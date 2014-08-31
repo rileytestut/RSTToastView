@@ -39,6 +39,8 @@ extern NSString *const RSTToastViewWasTappedNotification;
 
 @interface RSTToastView : UIView
 
+@property (weak, nonatomic) id<RSTToastViewDelegate> delegate;
+
 // Content
 @property (nonatomic, copy) NSString *message;
 @property (nonatomic, assign) BOOL showsActivityIndicator;

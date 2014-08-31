@@ -321,6 +321,11 @@ static RSTToastView *_globalToastView;
     
     self.frame = initialFrame;
     
+    if ([self.delegate respondsToSelector:@selector(toastViewWillShow:)])
+    {
+        [self.delegate toastViewWillShow:self];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewWillShowNotification object:self];
     
     self.visible = YES;
@@ -328,6 +333,12 @@ static RSTToastView *_globalToastView;
     [UIView animateWithDuration:.8 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0 options:0 animations:^{
         self.frame = finalFrame;
     } completion:^(BOOL finished) {
+        
+        if ([self.delegate respondsToSelector:@selector(toastViewDidShow:)])
+        {
+            [self.delegate toastViewDidShow:self];
+        }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewDidShowNotification object:self];
     }];
 }
@@ -431,6 +442,11 @@ static RSTToastView *_globalToastView;
     
     CGRect initialFrame = [RSTToastView rst_initialFrameForToastView:self];
     
+    if ([self.delegate respondsToSelector:@selector(toastViewWillHide:)])
+    {
+        [self.delegate toastViewWillHide:self];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewWillHideNotification object:self];
     
     [UIView animateWithDuration:0.4 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
@@ -441,6 +457,11 @@ static RSTToastView *_globalToastView;
         
         _currentlyHiding = NO;
         
+        if ([self.delegate respondsToSelector:@selector(toastViewDidHide:)])
+        {
+            [self.delegate toastViewDidHide:self];
+        }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewDidHideNotification object:self];
     }];
 }
@@ -449,6 +470,11 @@ static RSTToastView *_globalToastView;
 
 - (void)rst_toastViewWasTapped:(UITapGestureRecognizer *)tapGestureRecognizer
 {
+    if ([self.delegate respondsToSelector:@selector(toastViewWasTapped:)])
+    {
+        [self.delegate toastViewWasTapped:self];
+    }
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewWasTappedNotification object:self];
 }
 

@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "RSTToastView.h"
 
-@interface ViewController ()
+@interface ViewController () <RSTToastViewDelegate>
 
 @property (strong, nonatomic) RSTToastView *toastView;
 
@@ -23,6 +23,7 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     self.toastView = [RSTToastView toastViewWithMessage:@"Testing RSTToastView!"];
+    self.toastView.delegate = self;
     self.toastView.showsActivityIndicator = YES;
 }
 
@@ -112,5 +113,13 @@
 {
      return UIInterfaceOrientationMaskAll;
 }
+
+#pragma mark - RSTToastViewDelegate -
+
+- (void)toastViewWasTapped:(RSTToastView *)toastView
+{
+    [toastView hide];
+}
+
 
 @end
