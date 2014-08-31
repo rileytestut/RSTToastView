@@ -8,6 +8,8 @@
 
 #import "RSTToastView.h"
 
+#ifndef RST_APP_EXTENSION
+
 @interface RSTPresentationRootViewController : UIViewController
 
 @end
@@ -115,9 +117,10 @@
         default:
             break;
     }
-    
+
     if (animated)
     {
+        
         [UIView animateWithDuration:animationDuration animations:^{
             self.transform = rotationTransform;
             self.bounds = bounds;
@@ -142,6 +145,7 @@
             frame;
         });
     }
+    
 }
 
 #pragma mark - Hit Test
@@ -161,6 +165,7 @@
 
 @end
 
+#endif
 
 const CGFloat RSTToastViewCornerRadiusAutomaticRoundedDimension = -1816.1816;
 const CGFloat RSTToastViewAutomaticWidth = 0;
@@ -370,6 +375,12 @@ static RSTToastView *_globalToastView;
     
     // Applies UIAppearance after added to a view
     [view addSubview:self];
+    
+    if (view == [RSTToastView presentationWindow] && [view isHidden])
+    {
+        [[RSTToastView presentationWindow] setHidden:NO];
+        [[RSTToastView presentationWindow] setWindowLevel:UIWindowLevelNormal];
+    }
     
     if (duration > 0)
     {
@@ -692,23 +703,7 @@ static RSTToastView *_globalToastView;
 + (CGFloat)rst_maximumWidthForToastView:(RSTToastView *)toastView
 {
     UIView *view = toastView.presentationView;
-    CGFloat maximumWidth = 0;
-    
-    if (view == [RSTToastView presentationWindow])
-    {
-        if (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation))
-        {
-            maximumWidth = CGRectGetWidth(view.bounds);
-        }
-        else
-        {
-            maximumWidth = CGRectGetHeight(view.bounds);
-        }
-    }
-    else
-    {
-        maximumWidth = CGRectGetWidth(view.bounds);
-    }
+    CGFloat maximumWidth = CGRectGetWidth(view.bounds);
     
     maximumWidth -= toastView.edgeSpacing * 2.0f;
     
@@ -741,6 +736,10 @@ static RSTToastView *_globalToastView;
             break;
     }
     
+    if (alignmentEdge == UIRectEdgeNone)
+    {
+        alignmentEdge = presentationEdge;
+    }
     
     switch (alignmentEdge)
     {
@@ -884,22 +883,18 @@ static RSTToastView *_globalToastView;
     if (alignmentEdge & UIRectEdgeBottom)
     {
         sanitizedAlignmentEdge = UIRectEdgeBottom;
-        self.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     }
     else if (alignmentEdge & UIRectEdgeTop)
     {
         sanitizedAlignmentEdge = UIRectEdgeTop;
-        self.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     }
     else if (alignmentEdge & UIRectEdgeLeft)
     {
         sanitizedAlignmentEdge = UIRectEdgeLeft;
-        self.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
     }
     else if (alignmentEdge & UIRectEdgeRight)
     {
         sanitizedAlignmentEdge = UIRectEdgeRight;
-        self.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin;
     }
     
     _alignmentEdge = alignmentEdge;
@@ -991,17 +986,27 @@ static RSTToastView *_globalToastView;
     self.backgroundColor = self.tintColor;
 }
 
+#ifndef RST_APP_EXTENSION
+
 + (RSTPresentationWindow *)presentationWindow
 {
     static RSTPresentationWindow *_presentationWindow = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _presentationWindow = [RSTPresentationWindow new];
-        _presentationWindow.windowLevel = (UIWindowLevelNormal + UIWindowLevelStatusBar) / 2.0f;
-        [_presentationWindow setHidden:NO];
+        _presentationWindow.windowLevel = -1;
     });
     
     return _presentationWindow;
 }
+
+#else
+
++ (UIWindow *)presentationWindow
+{
+    return [UIWindow new];
+}
+
+#endif
 
 @end

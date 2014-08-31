@@ -67,16 +67,16 @@ extern NSString *const RSTToastViewWasTappedNotification;
 @property (nonatomic, assign) NSInteger numberOfLines;
 
 // Class Methods
-+ (void)show;
++ (void)show NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
 
-+ (void)showWithMessage:(NSString *)message;
-+ (void)showWithMessage:(NSString *)message duration:(NSTimeInterval)duration;
++ (void)showWithMessage:(NSString *)message NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
++ (void)showWithMessage:(NSString *)message duration:(NSTimeInterval)duration NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
 
 + (void)showWithMessage:(NSString *)message inView:(UIView *)view;
 + (void)showWithMessage:(NSString *)message inView:(UIView *)view duration:(NSTimeInterval)duration;
 
-+ (void)showWithActivityMessage:(NSString *)message;
-+ (void)showWithActivityMessage:(NSString *)message duration:(NSTimeInterval)duration;
++ (void)showWithActivityMessage:(NSString *)message NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
++ (void)showWithActivityMessage:(NSString *)message duration:(NSTimeInterval)duration NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
 
 + (void)showWithActivityMessage:(NSString *)message inView:(UIView *)view;
 + (void)showWithActivityMessage:(NSString *)message inView:(UIView *)view duration:(NSTimeInterval)duration;
@@ -90,8 +90,8 @@ extern NSString *const RSTToastViewWasTappedNotification;
 - (instancetype)initWithMessage:(NSString *)message;
 + (instancetype)toastViewWithMessage:(NSString *)message;
 
-- (void)show;
-- (void)showForDuration:(NSTimeInterval)duration;
+- (void)show NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
+- (void)showForDuration:(NSTimeInterval)duration NS_EXTENSION_UNAVAILABLE_IOS("Specify a view to show in.");
 
 - (void)showInView:(UIView *)view;
 - (void)showInView:(UIView *)view duration:(NSTimeInterval)duration;
