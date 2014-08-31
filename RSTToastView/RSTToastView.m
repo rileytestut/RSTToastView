@@ -14,10 +14,15 @@
 
 @implementation RSTPresentationRootViewController
 
+- (BOOL)shouldAutorotate
+{
+    return NO;
+}
+
 - (NSUInteger)supportedInterfaceOrientations
 {
     // Listen to UIApplicationWillChangeStatusBarOrientationNotification to know when the app's top view controller rotates
-    return UIInterfaceOrientationMaskPortrait;
+    return UIInterfaceOrientationMaskAll;
 }
 
 @end
@@ -31,7 +36,7 @@
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
+    self = [super initWithFrame:[[UIScreen mainScreen] bounds]];
     if (self)
     {
         RSTPresentationRootViewController *rootViewController = [RSTPresentationRootViewController new];
@@ -39,7 +44,10 @@
         rootViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.rootViewController = rootViewController;
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateToInterfaceOrientation:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(interfaceOrientationWillChange:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
+        
+        [self rotateToInterfaceOrientation:[UIApplication sharedApplication].statusBarOrientation fromInterfaceOrientation:UIInterfaceOrientationPortrait animated:NO];
+        
     }
     
     return self;
@@ -52,12 +60,23 @@
 
 #pragma mark - Rotation
 
-- (void)rotateToInterfaceOrientation:(NSNotification *)notification
+- (void)interfaceOrientationWillChange:(NSNotification *)notification
 {
     UIInterfaceOrientation interfaceOrientation = [notification.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
     UIInterfaceOrientation previousInterfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
     
-    CGRect bounds = self.bounds;
+    [self rotateToInterfaceOrientation:interfaceOrientation fromInterfaceOrientation:previousInterfaceOrientation animated:YES];
+}
+
+- (void)rotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation fromInterfaceOrientation:(UIInterfaceOrientation)previousInterfaceOrientation animated:(BOOL)animated
+{
+    CGRect bounds = [[UIScreen mainScreen] bounds];
+    
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(fixedCoordinateSpace)])
+    {
+        bounds = [[UIScreen mainScreen].fixedCoordinateSpace convertRect:[UIScreen mainScreen].bounds fromCoordinateSpace:[UIScreen mainScreen].coordinateSpace];
+    }
+    
     CGFloat animationDuration = [[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
     
     if (interfaceOrientation != UIInterfaceOrientationUnknown)
@@ -66,7 +85,8 @@
         {
             animationDuration *= 2.0f;
         }
-        else
+        
+        if (UIInterfaceOrientationIsLandscape(interfaceOrientation))
         {
             bounds = CGRectMake(0, 0, CGRectGetHeight(bounds), CGRectGetWidth(bounds));
         }
@@ -96,10 +116,32 @@
             break;
     }
     
-    [UIView animateWithDuration:animationDuration animations:^{
+    if (animated)
+    {
+        [UIView animateWithDuration:animationDuration animations:^{
+            self.transform = rotationTransform;
+            self.bounds = bounds;
+            
+            self.frame = ({
+                CGRect frame = self.frame;
+                frame.origin.x = 0;
+                frame.origin.y = 0;
+                frame;
+            });
+        }];
+    }
+    else
+    {
         self.transform = rotationTransform;
         self.bounds = bounds;
-    }];
+        
+        self.frame = ({
+            CGRect frame = self.frame;
+            frame.origin.x = 0;
+            frame.origin.y = 0;
+            frame;
+        });
+    }
 }
 
 #pragma mark - Hit Test
@@ -954,15 +996,7 @@ static RSTToastView *_globalToastView;
     static RSTPresentationWindow *_presentationWindow = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        
-        CGRect bounds = [[UIScreen mainScreen] bounds];
-        
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(fixedCoordinateSpace)])
-        {
-            bounds = [[UIScreen mainScreen].fixedCoordinateSpace convertRect:[UIScreen mainScreen].bounds fromCoordinateSpace:[UIScreen mainScreen].coordinateSpace];
-        }
-        
-        _presentationWindow = [[RSTPresentationWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        _presentationWindow = [RSTPresentationWindow new];
         _presentationWindow.windowLevel = (UIWindowLevelNormal + UIWindowLevelStatusBar) / 2.0f;
         [_presentationWindow setHidden:NO];
     });

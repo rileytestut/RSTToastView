@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6206.8" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
+        <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7026.1"/>
     </dependencies>
     <scenes>
@@ -65,7 +66,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="presentToastView:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="A39-BK-tbW"/>
+                                    <action selector="toggleToastView:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="7tG-lO-RMY"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -83,6 +84,9 @@
                             <constraint firstItem="Jz2-zD-gZT" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="44" id="lsA-m7-52o"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="toastViewButton" destination="Nmq-jy-0Eb" id="5M3-UQ-kcc"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>

@@ -12,6 +12,7 @@
 @interface ViewController () <RSTToastViewDelegate>
 
 @property (strong, nonatomic) RSTToastView *toastView;
+@property (strong, nonatomic) IBOutlet UIButton *toastViewButton;
 
 @end
 
@@ -32,6 +33,18 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+     return UIInterfaceOrientationMaskAll;
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+
+#pragma mark - RSTToastView -
 
 - (IBAction)changePresentationEdge:(UISegmentedControl *)sender
 {
@@ -95,30 +108,42 @@
     self.toastView.alignmentEdge = alignmentEdge;
 }
 
-- (IBAction)presentToastView:(UIButton *)sender
+- (IBAction)toggleToastView:(UIButton *)sender
 {
     if ([self.toastView isVisible])
     {
-        [self.toastView hide];
-        [sender setTitle:@"Present RSTToastView" forState:UIControlStateNormal];
+        [self hideToastView];
     }
     else
     {
-        [self.toastView show];
-        [sender setTitle:@"Dismiss RSTToastView" forState:UIControlStateNormal];
+        [self showToastView];
     }
 }
 
-- (NSUInteger)supportedInterfaceOrientations
+- (void)showToastView
 {
-     return UIInterfaceOrientationMaskAll;
+    [self.toastView show];
+    [self.toastViewButton setTitle:@"Dismiss RSTToastView" forState:UIControlStateNormal];
+}
+
+- (void)hideToastView
+{
+    [self.toastView hide];
+    [self.toastViewButton setTitle:@"Present RSTToastView" forState:UIControlStateNormal];
 }
 
 #pragma mark - RSTToastViewDelegate -
 
 - (void)toastViewWasTapped:(RSTToastView *)toastView
 {
-    [toastView hide];
+    if ([self.toastView isVisible])
+    {
+        [self hideToastView];
+    }
+    else
+    {
+        [self showToastView];
+    }
 }
 
 
