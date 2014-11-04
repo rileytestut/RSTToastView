@@ -183,9 +183,6 @@ static RSTToastView *_globalToastView;
 #define DEGREES_TO_RADIANS(angle) ((angle) / 180.0 * M_PI)
 
 @interface RSTToastView ()
-{
-    BOOL _currentlyHiding;
-}
 
 @property (nonatomic, readwrite, assign, getter = isVisible) BOOL visible;
 
@@ -195,9 +192,12 @@ static RSTToastView *_globalToastView;
 @property (nonatomic, strong) CALayer *borderLayer;
 @property (nonatomic, strong) NSTimer *hidingTimer;
 
-@property (nonatomic, assign) UIRectEdge presentedEdge;
+@property (nonatomic, assign) UIRectEdge currentPresentationEdge;
+@property (nonatomic, assign) UIRectEdge currentAlignmentEdge;
 @property (nonatomic, assign) BOOL presentAfterHiding;
 @property (nonatomic, weak) UIView *presentationView; // Need to keep reference even after it is removed from superview
+
+@property (nonatomic, assign, getter=isBeingHidden) BOOL beingHidden;
 
 @end
 
@@ -366,48 +366,83 @@ static RSTToastView *_globalToastView;
 
 - (void)showInView:(UIView *)view duration:(NSTimeInterval)duration
 {
-    if ([self isVisible])
-    {
-        self.presentAfterHiding = YES;
-        [self hide];
-        return;
-    }
-    
-    // Applies UIAppearance after added to a view
-    [view addSubview:self];
-    
+    // Show Presentation Window if needed
     if (view == [RSTToastView presentationWindow] && [view isHidden])
     {
         [[RSTToastView presentationWindow] setHidden:NO];
         [[RSTToastView presentationWindow] setWindowLevel:UIWindowLevelNormal];
     }
     
+    
+    // Duration Timer
+    [self.hidingTimer invalidate];
+    
     if (duration > 0)
     {
         self.hidingTimer = [NSTimer scheduledTimerWithTimeInterval:duration target:self selector:@selector(hide) userInfo:nil repeats:NO];
     }
+    else
+    {
+        self.hidingTimer = nil;
+    }
     
-    self.presentedEdge = self.presentationEdge;
+
+    BOOL dismissBeforePresenting = ([self isVisible] && (self.currentPresentationEdge != self.presentationEdge || self.currentAlignmentEdge != self.alignmentEdge || self.presentationView != view));
+    
+    // If toast view should be shown in a new position, dismiss it first before presenting again
+    if (dismissBeforePresenting)
+    {
+        self.presentAfterHiding = YES;
+        [self hide];
+    }
+    
+    // Must set these after (potentially) hiding toast view
+    self.currentPresentationEdge = self.presentationEdge;
+    self.currentAlignmentEdge = self.alignmentEdge;
     self.presentationView = view;
+    
+    if (dismissBeforePresenting)
+    {
+        return;
+    }
+    
+    // If toast view is already visible and is not currently being hidden, no need to do anything else
+    if ([self isVisible] && ![self isBeingHidden])
+    {
+        return;
+    }
+    
+    
+    // Applies UIAppearance after added to a view
+    [view addSubview:self];
     
     [self rst_refreshLayout];
     
-    CGRect initialFrame = [RSTToastView rst_initialFrameForToastView:self];
-    CGRect finalFrame = [RSTToastView rst_finalFrameForToastView:self];
     
-    self.frame = initialFrame;
-    
-    if ([self.delegate respondsToSelector:@selector(toastViewWillShow:)])
+    if (![self isVisible])
     {
-        [self.delegate toastViewWillShow:self];
+        self.frame = [RSTToastView rst_initialFrameForToastView:self];
+        
+        if ([self.delegate respondsToSelector:@selector(toastViewWillShow:)])
+        {
+            [self.delegate toastViewWillShow:self];
+        }
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewWillShowNotification object:self];
     }
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewWillShowNotification object:self];
+    if ([self isBeingHidden])
+    {
+        self.frame = [self.layer.presentationLayer frame];
+        [self.layer removeAllAnimations];
+    }
+    
     
     self.visible = YES;
     
+    
     [UIView animateWithDuration:.8 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0 options:0 animations:^{
-        self.frame = finalFrame;
+        self.frame = [RSTToastView rst_finalFrameForToastView:self];
     } completion:^(BOOL finished) {
         
         if ([self.delegate respondsToSelector:@selector(toastViewDidShow:)])
@@ -508,7 +543,12 @@ static RSTToastView *_globalToastView;
 
 - (void)hide
 {
-    _currentlyHiding = YES;
+    if ([self isBeingHidden])
+    {
+        return;
+    }
+    
+    self.beingHidden = YES;
     
     if (!self.presentAfterHiding)
     {
@@ -528,10 +568,17 @@ static RSTToastView *_globalToastView;
     [UIView animateWithDuration:0.4 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
         self.frame = initialFrame;
     } completion:^(BOOL finished) {
+        
+        self.beingHidden = NO;
+        
+        if (!finished)
+        {
+            // Cancelled, so still visible
+            return;
+        }
+        
         [self removeFromSuperview];
         self.visible = NO;
-        
-        _currentlyHiding = NO;
         
         if ([self.delegate respondsToSelector:@selector(toastViewDidHide:)])
         {
@@ -590,7 +637,7 @@ static RSTToastView *_globalToastView;
     CGRect frame = [RSTToastView rst_finalFrameForToastView:toastView];
     CGRect bounds = toastView.bounds;
     
-    switch (toastView.presentationEdge)
+    switch (toastView.currentPresentationEdge)
     {
         case UIRectEdgeTop:
         {
@@ -625,8 +672,8 @@ static RSTToastView *_globalToastView;
     UIView *view = toastView.presentationView;
     CGSize size = toastView.bounds.size;
     
-    UIRectEdge presentationEdge = toastView.presentedEdge;
-    UIRectEdge alignmentEdge = toastView.alignmentEdge;
+    UIRectEdge presentationEdge = toastView.currentPresentationEdge; // Use current value in case it was changed, but hasn't yet been dismissed
+    UIRectEdge alignmentEdge = toastView.currentAlignmentEdge; // Use current value in case it was changed, but hasn't yet been dismissed
 
     CGFloat originX = 0.0;
     CGFloat originY = 0.0;
@@ -839,7 +886,7 @@ static RSTToastView *_globalToastView;
     }
     
     // If the timer is valid, it hasn't yet started to dismiss
-    if (!_currentlyHiding)
+    if (![self isBeingHidden])
     {
         self.presentAfterHiding = YES;
     }
