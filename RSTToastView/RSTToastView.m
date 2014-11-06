@@ -856,7 +856,7 @@ static RSTToastView *_globalToastView;
     RSTToastView *toastView = [notification object];
     
     // If the new toast view is presenting from the same edge as the current toast view, hide the current one
-    if (self.presentationEdge == toastView.presentationEdge && [self isVisible])
+    if (self.presentationEdge == toastView.presentationEdge && self.superview == toastView.superview && [self isVisible])
     {
         [self hide];
     }
