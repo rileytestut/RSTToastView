@@ -527,6 +527,8 @@ static RSTToastView *_globalToastView;
     self.layer.cornerRadius = cornerRadius;
     
     [self setNeedsDisplay];
+    
+    self.frame = [RSTToastView rst_finalFrameForToastView:self];
 }
 
 - (void)drawRect:(CGRect)rect
