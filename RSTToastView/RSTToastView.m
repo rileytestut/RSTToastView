@@ -550,6 +550,11 @@ static RSTToastView *_globalToastView;
         return;
     }
     
+    if (![self isVisible])
+    {
+        return;
+    }
+    
     self.beingHidden = YES;
     
     if (!self.presentAfterHiding)
