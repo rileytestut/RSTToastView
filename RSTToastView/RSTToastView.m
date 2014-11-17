@@ -186,9 +186,9 @@ static RSTToastView *_globalToastView;
 
 @property (nonatomic, readwrite, assign, getter = isVisible) BOOL visible;
 
+@property (nonatomic, strong) UIView *dimmerView;
 @property (nonatomic, strong) UILabel *messageLabel;
 @property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
-@property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic, strong) CALayer *borderLayer;
 @property (nonatomic, strong) NSTimer *hidingTimer;
 
@@ -224,6 +224,13 @@ static RSTToastView *_globalToastView;
         self.layer.allowsGroupOpacity = YES;
         
         // Private Properties
+        _dimmerView = [[UIView alloc] initWithFrame:CGRectZero];
+        _dimmerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _dimmerView.backgroundColor = [UIColor blackColor];
+        _dimmerView.alpha = 0.1f;
+        _dimmerView.hidden = YES;
+        [self addSubview:_dimmerView];
+        
         _messageLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         _messageLabel.textColor = [UIColor whiteColor];
         _messageLabel.minimumScaleFactor = 0.75;
@@ -233,9 +240,6 @@ static RSTToastView *_globalToastView;
         _activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         _activityIndicatorView.hidesWhenStopped = YES;
         [self addSubview:_activityIndicatorView];
-        
-        _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(rst_toastViewWasTapped:)];
-        [self addGestureRecognizer:_tapGestureRecognizer];
         
         // Public
         self.showsActivityIndicator = NO;
@@ -268,10 +272,14 @@ static RSTToastView *_globalToastView;
         group.motionEffects = @[xAxis, yAxis];
         [self addMotionEffect:group];
         
+        // Interaction
+        [self addTarget:self action:@selector(rst_toastViewWasTapped) forControlEvents:UIControlEventTouchUpInside];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rst_willShowToastView:) name:RSTToastViewWillShowNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rst_didHideToastView:) name:RSTToastViewDidHideNotification object:self];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rst_willChangeStatusBarOrientation:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     }
+    
     return self;
 }
 
@@ -282,6 +290,7 @@ static RSTToastView *_globalToastView;
 
 - (void)dealloc
 {
+    [self removeTarget:self action:@selector(rst_toastViewWasTapped) forControlEvents:UIControlEventTouchUpInside];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -598,13 +607,15 @@ static RSTToastView *_globalToastView;
 
 #pragma mark - Interaction
 
-- (void)rst_toastViewWasTapped:(UITapGestureRecognizer *)tapGestureRecognizer
+- (void)setHighlighted:(BOOL)highlighted
 {
-    if ([self.delegate respondsToSelector:@selector(toastViewWasTapped:)])
-    {
-        [self.delegate toastViewWasTapped:self];
-    }
+    [super setHighlighted:highlighted];
     
+    self.dimmerView.hidden = !highlighted;
+}
+
+- (void)rst_toastViewWasTapped
+{
     [[NSNotificationCenter defaultCenter] postNotificationName:RSTToastViewWasTappedNotification object:self];
 }
 

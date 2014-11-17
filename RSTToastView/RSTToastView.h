@@ -32,12 +32,10 @@ extern NSString *const RSTToastViewWasTappedNotification;
 - (void)toastViewWillHide:(RSTToastView *)toastView;
 - (void)toastViewDidHide:(RSTToastView *)toastView;
 
-- (void)toastViewWasTapped:(RSTToastView *)toastView;
-
 @end
 
 
-@interface RSTToastView : UIView
+@interface RSTToastView : UIControl
 
 @property (weak, nonatomic) id<RSTToastViewDelegate> delegate;
 
